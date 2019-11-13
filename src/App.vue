@@ -4,11 +4,16 @@
     <div class="c-container">
       <div class="c-wrapper">
         <div class="c-table">
-          <h2 class="c-display">{{ result }}</h2>
+          <div class="c-wrap">
+            <template v-if="operand.length">
+              <h2 v-for="op in operand" :key="op" class="c-display">{{ op }}</h2>
+            </template>
+            <h2 class="c-display">{{ screenValue }}</h2>
+          </div>
         </div>
         <div class="c-button-wrap">
           <div class="c-btn" v-for="(n, i) in calcBtnList" :key="i">
-            <button class="btn" @click="doSmth(n.action)">{{ n.text }}</button>
+            <button class="btn" @click="doSmth(n.action, n.isNum, n.isOperator)">{{ n.text }}</button>
           </div>
         </div>
       </div>
@@ -18,103 +23,151 @@
 
 <script>
 export default {
-  name: 'app',
+  name: "app",
   data() {
     return {
-      result: 0,
+      screenValue: 0,
+      result: null,
+      operand: [],
       calcBtnList: [
         {
-          text: 'AC',
+          text: "AC",
           action: this.reset
         },
         {
-          text: '<<',
+          text: "<<",
           action: () => {}
         },
         {
-          text: '%',
+          text: "%",
           action: () => {}
         },
         {
-          text: '/',
+          text: "/",
+          isOperator: true,
+          action: () => "/"
+        },
+        {
+          text: "7",
+          isNum: true,
+          action: () => "7"
+        },
+        {
+          text: "8",
+          isNum: true,
+          action: () => "8"
+        },
+        {
+          text: "9",
+          isNum: true,
+          action: () => "9"
+        },
+        {
+          text: "x",
+          isOperator: true,
+          action: () => "x"
+        },
+        {
+          text: "4",
+          isNum: true,
+          action: () => "4"
+        },
+        {
+          text: "5",
+          isNum: true,
+          action: () => "5"
+        },
+        {
+          text: "6",
+          isNum: true,
+          action: () => "6"
+        },
+        {
+          text: "-",
+          isOperator: true,
+          action: () => "-"
+        },
+        {
+          text: "1",
+          isNum: true,
+          action: () => "1"
+        },
+        {
+          text: "2",
+          isNum: true,
+          action: () => "2"
+        },
+        {
+          text: "3",
+          isNum: true,
+          action: () => "3"
+        },
+        {
+          text: "+",
+          isOperator: true,
+          action: () => "+"
+        },
+        {
+          text: "...",
           action: () => {}
         },
         {
-          text: '7',
-          action: () => 7
+          text: "0",
+          isNum: true,
+          action: () => "0"
         },
         {
-          text: '8',
-          action: () => 8
+          text: ".",
+          isNum: true,
+          action: () => "."
         },
         {
-          text: '9',
-          action: () => 9
-        },
-        {
-          text: 'x',
-          action: () => {}
-        },
-        {
-          text: '4',
-          action: () => 4
-        },
-        {
-          text: '5',
-          action: () => 5
-        },
-        {
-          text: '6',
-          action: () => 6
-        },
-        {
-          text: '-',
-          action: () => {}
-        },
-        {
-          text: '1',
-          action: () => 1
-        },
-        {
-          text: '2',
-          action: () => 2
-        },
-        {
-          text: '3',
-          action: () => 3
-        },
-        {
-          text: '+',
-          action: () => {}
-        },
-        {
-          text: '...',
-          action: () => {}
-        },
-        {
-          text: '0',
-          action: () => 0
-        },
-        {
-          text: '.',
-          action: () => {}
-        },
-        {
-          text: '=',
-          action: () => {}
+          text: "=",
+          action: this.getResult
         }
       ]
-    }
+    };
   },
   methods: {
     reset() {
-      this.result = 0
+      this.screenValue = 0;
+      this.operand = [];
+      this.result = null;
     },
-    doSmth(action) {
-      this.result = action()
+    getResult() {
+      const op = [...this.operand]
+      for (let i = 0; i < op.length; i++) {
+        let n = Number(op[i])
+        console.log('n', n)
+      }
+      console.log("resSplit", this.result.split());
+      console.log("resNum", Number(this.result));
+      console.log("res", this.result);
+    },
+    doSmth(action, isNum, isOperator) {
+      if (isNum) {
+        if (this.screenValue == 0) {
+          this.screenValue = action();
+          console.log("res1", this.result);
+          this.result = action();
+          console.log("res1", this.result);
+        } else {
+          this.screenValue += action();
+          console.log("res2", this.result);
+          this.result += action();
+          // this.result ? this.result += this.screenValue : this.result = this.screenValue
+          console.log("res2", this.result);
+        }
+      } else if (isOperator) {
+        this.operand.push(this.screenValue);
+        this.result += action();
+        this.screenValue = action() + " ";
+      } else {
+        action();
+      }
     }
   }
-}
+};
 </script>
 
 <style lang="scss">
@@ -124,7 +177,6 @@ body {
 .app-div {
   width: 100%;
   height: 100%;
-  // display: flex;
   padding: 20px;
 }
 .app-header {
@@ -140,7 +192,7 @@ body {
   max-width: 400px;
   height: 100%;
   border: 2px solid grey;
-  border-radius: 4px; 
+  border-radius: 4px;
 }
 .c-table {
   width: 100%;
@@ -150,14 +202,16 @@ body {
   justify-content: flex-end;
   align-items: flex-end;
 }
+.c-wrap {
+  text-align: right;
+  padding: 15px;
+}
 .c-display {
   margin: 0;
-  padding: 15px;
 }
 .c-button-wrap {
   display: flex;
   flex-wrap: wrap;
-  // height: 250px;
 }
 .c-btn {
   width: calc(25% - 2px);
@@ -167,5 +221,6 @@ body {
 .btn {
   width: 100%;
   height: 100%;
+  cursor: pointer;
 }
 </style>
