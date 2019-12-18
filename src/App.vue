@@ -5,15 +5,16 @@
       <div class="c-wrapper">
         <div class="c-table">
           <div class="c-wrap">
-            <template v-if="operand.length">
-              <h2 v-for="op in operand" :key="op" class="c-display">{{ op }}</h2>
+            <template v-if="exspression.length">
+              <h2 class="c-display" :class="{ 'bigger': isMain }">{{ exspression }}</h2>
             </template>
-            <h2 class="c-display">{{ screenValue }}</h2>
+            <h2 v-if="result === null" class="c-display">{{ screenValue }}</h2>
+            <h2 v-else class="c-display" :class="{ 'bigger': !isMain }">{{ result }}</h2>
           </div>
         </div>
         <div class="c-button-wrap">
           <div class="c-btn" v-for="(n, i) in calcBtnList" :key="i">
-            <button class="btn" @click="doSmth(n.action, n.isNum, n.isOperator)">{{ n.text }}</button>
+            <button class="btn" type="button"  @mouseup="doSmth(n)">{{ n.text }}</button>
           </div>
         </div>
       </div>
@@ -26,9 +27,6 @@ export default {
   name: "app",
   data() {
     return {
-      screenValue: 0,
-      result: null,
-      operand: [],
       calcBtnList: [
         {
           text: "AC",
@@ -36,7 +34,7 @@ export default {
         },
         {
           text: "<<",
-          action: () => {}
+          action: this.clearLast
         },
         {
           text: "%",
@@ -44,67 +42,77 @@ export default {
         },
         {
           text: "/",
-          isOperator: true,
+          isString: true,
           action: () => "/"
         },
         {
           text: "7",
+          key: 7,
+          isString: true,
           isNum: true,
           action: () => "7"
         },
         {
           text: "8",
+          isString: true,
           isNum: true,
           action: () => "8"
         },
         {
           text: "9",
+          isString: true,
           isNum: true,
           action: () => "9"
         },
         {
-          text: "x",
-          isOperator: true,
-          action: () => "x"
+          text: "*",
+          isString: true,
+          action: () => "*"
         },
         {
           text: "4",
+          isString: true,
           isNum: true,
           action: () => "4"
         },
         {
           text: "5",
+          isString: true,
           isNum: true,
           action: () => "5"
         },
         {
           text: "6",
+          isString: true,
           isNum: true,
           action: () => "6"
         },
         {
           text: "-",
-          isOperator: true,
+          isString: true,
           action: () => "-"
         },
         {
           text: "1",
+          isString: true,
           isNum: true,
           action: () => "1"
         },
         {
           text: "2",
+          isString: true,
           isNum: true,
           action: () => "2"
         },
         {
           text: "3",
+          isString: true,
           isNum: true,
           action: () => "3"
         },
         {
           text: "+",
-          isOperator: true,
+          isString: true,
           action: () => "+"
         },
         {
@@ -113,59 +121,80 @@ export default {
         },
         {
           text: "0",
+          isString: true,
           isNum: true,
           action: () => "0"
         },
         {
           text: ".",
-          isNum: true,
+          isString: true,
           action: () => "."
         },
         {
           text: "=",
+          isEq: true,
           action: this.getResult
         }
-      ]
+      ],
+      screenValue: '0',
+      result: null,
+      exspression: '',
+      isMain: true
     };
   },
   methods: {
+    defineKey(e) {
+      this.calcBtnList.forEach(n => {
+        if (n.text === e.key) this.doSmth(n);
+      })
+      if (e.key === 'Enter') {
+        const l = this.exspression.slice(-1)
+        if (l == '+' || l == '-') return;
+        this.isMain = false
+        this.exspression = this.getResult()
+      }
+      if (e.key === 'Backspace') {
+        this.clearLast()
+      }
+      if (e.key === 'Delete') {
+        this.reset()
+      }
+    },
+    clearLast() {
+      if (this.exspression.length) {
+        this.exspression = this.exspression.slice(0, this.exspression.length - 1)
+      }
+    },
     reset() {
-      this.screenValue = 0;
-      this.operand = [];
+      this.screenValue = '0';
+      this.exspression = '';
       this.result = null;
     },
     getResult() {
-      const op = [...this.operand]
-      for (let i = 0; i < op.length; i++) {
-        let n = Number(op[i])
-        console.log('n', n)
-      }
-      console.log("resSplit", this.result.split());
-      console.log("resNum", Number(this.result));
-      console.log("res", this.result);
-    },
-    doSmth(action, isNum, isOperator) {
-      if (isNum) {
-        if (this.screenValue == 0) {
-          this.screenValue = action();
-          console.log("res1", this.result);
-          this.result = action();
-          console.log("res1", this.result);
-        } else {
-          this.screenValue += action();
-          console.log("res2", this.result);
-          this.result += action();
-          // this.result ? this.result += this.screenValue : this.result = this.screenValue
-          console.log("res2", this.result);
-        }
-      } else if (isOperator) {
-        this.operand.push(this.screenValue);
-        this.result += action();
-        this.screenValue = action() + " ";
+      if (this.exspression.length) {
+        return new Function('return ' + this.exspression)()
       } else {
-        action();
+        alert('hernya')
+      }
+    },
+    doSmth(n) {
+      if (n.isEq) this.isMain = false
+      if (n.isString) {
+        this.isMain = true
+        this.exspression += n.action()
+        if (this.exspression.length && n.isNum) {
+          this.result = this.getResult()
+        }
+      } else {
+        n.action()
+        if (n.text === '=') this.exspression = this.result
       }
     }
+  },
+  mounted() {
+    window.addEventListener('keyup', event => {
+      this.defineKey(event)
+    })
   }
 };
 </script>
@@ -208,6 +237,7 @@ body {
 }
 .c-display {
   margin: 0;
+  color: rgb(122, 116, 116)
 }
 .c-button-wrap {
   display: flex;
@@ -222,5 +252,9 @@ body {
   width: 100%;
   height: 100%;
   cursor: pointer;
+}
+.bigger {
+  font-size: 40px;
+  color: black;
 }
 </style>
