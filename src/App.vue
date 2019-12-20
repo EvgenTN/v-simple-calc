@@ -1,6 +1,6 @@
 <template>
   <div class="app-div">
-    <h2 class="app-header">Welcome to awesome calc</h2>
+    <h2 class="app-header"> </h2>
     <div class="c-container">
       <div class="c-wrapper">
         <div class="c-table">
@@ -14,7 +14,7 @@
         </div>
         <div class="c-button-wrap">
           <div class="c-btn" v-for="(n, i) in calcBtnList" :key="i">
-            <button class="btn" type="button"  @mouseup="doSmth(n)">{{ n.text }}</button>
+            <button class="btn" :class="{ 'colored': n.color }" type="button"  @mouseup="doSmth(n)">{{ n.text }}</button>
           </div>
         </div>
       </div>
@@ -30,19 +30,23 @@ export default {
       calcBtnList: [
         {
           text: "AC",
+          color: 'orange',
           action: this.reset
         },
         {
           text: "<<",
+          color: 'orange',
           action: this.clearLast
         },
         {
           text: "%",
-          action: () => {}
+          color: 'orange',
+          action: this.getPercent
         },
         {
           text: "/",
           isString: true,
+          color: 'orange',
           action: () => "/"
         },
         {
@@ -67,6 +71,7 @@ export default {
         {
           text: "*",
           isString: true,
+          color: 'orange',
           action: () => "*"
         },
         {
@@ -90,6 +95,7 @@ export default {
         {
           text: "-",
           isString: true,
+          color: 'orange',
           action: () => "-"
         },
         {
@@ -113,10 +119,12 @@ export default {
         {
           text: "+",
           isString: true,
+          color: 'orange',
           action: () => "+"
         },
         {
           text: "...",
+          color: 'orange',
           action: () => {}
         },
         {
@@ -133,6 +141,7 @@ export default {
         {
           text: "=",
           isEq: true,
+          color: 'orange',
           action: this.getResult
         }
       ],
@@ -149,7 +158,7 @@ export default {
       })
       if (e.key === 'Enter') {
         const l = this.exspression.slice(-1)
-        if (l == '+' || l == '-') return;
+        if (l == '+' || l == '-' || l == '/' || l == '*') return;
         this.isMain = false
         this.exspression = this.getResult()
       }
@@ -159,6 +168,9 @@ export default {
       if (e.key === 'Delete') {
         this.reset()
       }
+    },
+    getPercent() {
+      this.result /= 100
     },
     clearLast() {
       if (this.exspression.length) {
@@ -226,7 +238,7 @@ body {
 .c-table {
   width: 100%;
   height: 200px;
-  border-bottom: 1px solid grey;
+  border-bottom: 1px solid lightgrey;
   display: flex;
   justify-content: flex-end;
   align-items: flex-end;
@@ -246,12 +258,25 @@ body {
 .c-btn {
   width: calc(25% - 2px);
   height: 50px;
-  border: 1px solid lightgrey;
+  // border: 1px solid lightgrey;
 }
 .btn {
   width: 100%;
   height: 100%;
   cursor: pointer;
+  // border: 4px solid darkblue;
+  border: none;
+  border-radius: 4px;
+  background: white;
+  color: darkblue;
+  font-size: 22px;
+  font-weight: 600;
+  // overflow: hidden;
+  // text-decoration: none;
+  outline: none;
+  &.colored {
+    color: orangered;
+  }
 }
 .bigger {
   font-size: 40px;
